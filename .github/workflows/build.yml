@@ -1,0 +1,29 @@
+name: Build release assets
+on:
+  release:
+    types: [created]
+jobs:
+  build_assets:
+    name: Build ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64-pc-windows-gnu
+          - x86_64-unknown-linux-musl
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin  # do I need to do something special here for arm?
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add rustup target
+        run: rustup target add ${{ matrix.target }} --toolchain stable
+      - name: Compile
+        run: cargo build --release --target=${{ matrix.target }}
+      - name: Add release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |  # I don't think this step is zipping the files, which is not ideal
+            target/release/modcraft-launcher
+            README.md
+            LICENSE
