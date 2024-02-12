@@ -1,0 +1,36 @@
+name: Release
+permissions:
+  contents: write
+on:
+  push:
+    tags:
+      - v[0-9]+.*
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/create-gh-release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+  build_assets:
+    needs: create-release
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-14
+          - macos-14-arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: modcraft-launcher
+          token: ${{ secrets.GITHUB_TOKEN }}
+          include: README.md,LICENSE
+          # tar: none
+          # zip: all
