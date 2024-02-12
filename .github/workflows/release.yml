@@ -13,6 +13,7 @@ jobs:
       - uses: taiki-e/create-gh-release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          changelog: CHANGELOG.md
   build_assets:
     needs: create-release
     name: Build ${{ matrix.os }}
